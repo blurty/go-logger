@@ -1,0 +1,5 @@
+# gogland work directory
+.idea
+
+# golang executable file
+*.exe
