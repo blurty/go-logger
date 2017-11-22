@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	_VER string = "1.0"
+	_VER string = "1.1"
 )
 
 type LEVEL int32
@@ -129,7 +129,7 @@ func mkdirlog(dir string) (e error) {
 
 func console(s string) {
 	if consoleAppender {
-		_, file, line, _ := runtime.Caller(2)
+		_, file, line, _ := runtime.Caller(3)
 		short := file
 		for i := len(file) - 1; i > 0; i-- {
 			if file[i] == '/' {
@@ -149,76 +149,31 @@ func catchError() {
 }
 
 func Debug(v ...interface{}) {
-	if dailyRolling {
-		fileCheck()
-	}
-	defer catchError()
-	if logObj != nil {
-		logObj.mu.RLock()
-		defer logObj.mu.RUnlock()
-	}
-
-	if logLevel <= DEBUG {
-		strValue := "[DEBUG]:" + fmt.Sprint(v...)
-		if logObj != nil {
-			logObj.lg.Output(2, strValue)
-		}
-		console(strValue)
-	}
+	data := "[DEBUG]:" + fmt.Sprint(v...)
+	printLog(DEBUG, data)
 }
+
 func Info(v ...interface{}) {
-	if dailyRolling {
-		fileCheck()
-	}
-	defer catchError()
-	if logObj != nil {
-		logObj.mu.RLock()
-		defer logObj.mu.RUnlock()
-	}
-	if logLevel <= INFO {
-		strValue := "[INFO]:" + fmt.Sprint(v...)
-		if logObj != nil {
-			logObj.lg.Output(2, strValue)
-		}
-		console(strValue)
-	}
+	data := "[INFO]:" + fmt.Sprint(v...)
+	printLog(INFO, data)
 }
-func Warn(v ...interface{}) {
-	if dailyRolling {
-		fileCheck()
-	}
-	defer catchError()
-	if logObj != nil {
-		logObj.mu.RLock()
-		defer logObj.mu.RUnlock()
-	}
 
-	if logLevel <= WARN {
-		strValue := "[WARN]:" + fmt.Sprint(v...)
-		if logObj != nil {
-			logObj.lg.Output(2, strValue)
-		}
-		console(strValue)
-	}
+func Warn(v ...interface{}) {
+	data := "[WARN]:" + fmt.Sprint(v...)
+	printLog(WARN, data)
 }
+
 func Error(v ...interface{}) {
-	if dailyRolling {
-		fileCheck()
-	}
-	defer catchError()
-	if logObj != nil {
-		logObj.mu.RLock()
-		defer logObj.mu.RUnlock()
-	}
-	if logLevel <= ERROR {
-		strValue := "[ERROR]:" + fmt.Sprint(v...)
-		if logObj != nil {
-			logObj.lg.Output(2, strValue)
-		}
-		console(strValue)
-	}
+	data := "[ERROR]:" + fmt.Sprint(v...)
+	printLog(ERROR, data)
 }
+
 func Fatal(v ...interface{}) {
+	data := "[FATAL]:" + fmt.Sprint(v...)
+	printLog(FATAL, data)
+}
+
+func printLog(level LEVEL, data string) {
 	if dailyRolling {
 		fileCheck()
 	}
@@ -227,12 +182,11 @@ func Fatal(v ...interface{}) {
 		logObj.mu.RLock()
 		defer logObj.mu.RUnlock()
 	}
-	if logLevel <= FATAL {
-		strValue := "[FATAL]:" + fmt.Sprint(v...)
+	if logLevel <= level {
 		if logObj != nil {
-			logObj.lg.Output(2, strValue)
+			logObj.lg.Output(3, data)
 		}
-		console(strValue)
+		console(data)
 	}
 }
 
